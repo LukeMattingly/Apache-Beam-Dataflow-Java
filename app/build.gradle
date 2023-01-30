@@ -15,5 +15,5 @@ dependencies {
 
 application {
     // Define the main class for the application.
-    mainClass = 'Apache.Beam.Dataflow.Java.app.App'
+    mainClass = 'Apache.Beam.Dataflow.Java.app.DefaultAndCustomOptions'
 }
