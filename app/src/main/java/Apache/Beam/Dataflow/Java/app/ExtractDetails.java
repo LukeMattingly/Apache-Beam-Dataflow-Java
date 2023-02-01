@@ -10,7 +10,8 @@ import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.ParDo;
 
 public class ExtractDetails{
-    private static final String CSV_HEADER="Order_ID,Product,Quantity_Ordered,price_EAch,Order_Date,Purcahse_Address";
+
+    private static final String CSV_HEADER="Order_ID,Product,Quantity_Ordered,Price_Each,Order_Date,Purchase_Address";
 
     public static void main(String[] args){
         PipelineOptions options = PipelineOptionsFactory.fromArgs(args).create();
@@ -31,5 +32,24 @@ public class ExtractDetails{
    
     }
 
-    
+    private static class FilterHeaderFn extends DoFn<String,String>{
+
+        private static final long serialVErsionUiD = 1L;
+        private final String header;
+
+        public FilterHeaderFn(String header){
+            this.header = header
+        }
+
+        @ProcessElement
+        public void processElement(ProcessContext c){
+            String row = c.element();
+
+            if(!row.isEmpty() && !row.equals(this.header)){
+                c.output(row);
+            }
+        }
+    }
+
+
 }
