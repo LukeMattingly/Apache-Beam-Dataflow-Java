@@ -25,7 +25,7 @@ public class ExtractDetails{
 
      p.apply("ReadLines", TextIO.read().from("gs://dataflow-beam-bucket/input_data/Sales_April_2019.csv"))
         .apply(ParDo.of(new FilterHeaderFn(CSV_HEADER)))
-        .apply("ExtractSalesDetails", ParDo.of(new ExtractSalesDetailsFn(CSV_HEADER)))
+        .apply("ExtractSalesDetails", ParDo.of(new ExtractSalesDetailsFn()))
         .apply("WriteSalesDetails", TextIO.write().to("gs://dataflow-beam-bucket/output_data/get_sales_details").withHeader("Product,Total_Price,Order_Date"));
 
     p.run().waitUntilFinish();
@@ -38,7 +38,7 @@ public class ExtractDetails{
         private final String header;
 
         public FilterHeaderFn(String header){
-            this.header = header
+            this.header = header;
         }
 
         @ProcessElement
@@ -51,5 +51,18 @@ public class ExtractDetails{
         }
     }
 
+    static class ExtractSalesDetailsFn extends DoFn<String, String>{
 
+        @ProcessElement
+        public void processElement(@Element String element, OutputReceiver<String> receiver){
+
+            String[] field = element.split(",");
+
+            String productDetails = field[1] + "," + 
+                Double.toString(Integer.parseInt(field[2]) * Double.parseDouble(field[3])) + "," + field[4];
+
+            receiver.output(productDetails);
+        }
+        
+    }
 }

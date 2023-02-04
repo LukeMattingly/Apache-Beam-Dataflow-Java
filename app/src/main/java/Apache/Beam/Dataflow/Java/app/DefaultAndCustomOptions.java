@@ -19,7 +19,7 @@ public class DefaultAndCustomOptions{
     }
 
     public static void main(String[] args){
-        PipelineOptionsFactory.register(MyFirstCustomOption.class)
+        PipelineOptionsFactory.register(MyFirstCustomOption.class);
 
         MyFirstCustomOption option = PipelineOptionsFactory.fromArgs(args).as(MyFirstCustomOption.class);
 

@@ -11,9 +11,18 @@ dependencies {
     implementation project(':utilities')
     implementation('org.apache.beam:beam-sdks-java-core:2.44.0')
     implementation('org.apache.beam:beam-runners-direct-java:2.44.0')
+    implementation('org.apache.beam:beam-sdks-java-io-kafka:2.44.0')
+    implementation('org.apache.beam:beam-runners-google-cloud-dataflow-java:2.44.0')
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        url "http://packages.confluent.io/maven/"
+    }
 }
 
 application {
     // Define the main class for the application.
-    mainClass = 'Apache.Beam.Dataflow.Java.app.PriceConversion'
+    mainClass = 'Apache.Beam.Dataflow.Java.app.ExtractDetails'
 }
