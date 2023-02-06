@@ -24,7 +24,7 @@ repositories {
 
 application {
     // Define the main class for the application.
-    mainClass = 'Apache.Beam.Dataflow.Java.app.ExtractDetails'
+    mainClass = 'Apache.Beam.Dataflow.Java.app.WalmartSales'
     //stagingLocation="gs://dataflow-beam-bucket/staging"
     //runner = DataflowRunner
     //region = us-central1
