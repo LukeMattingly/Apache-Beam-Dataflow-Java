@@ -1,32 +1,62 @@
 package Apache.Beam.Dataflow.Java.app;
 
-import java.lang.Double; 
-
+import java.lang.Double;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.io.TextIO;
+import org.apache.beam.sdk.options.Default;
+import org.apache.beam.sdk.options.Description;
 import org.apache.beam.sdk.options.PipelineOptions;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
-import org.apache.beam.sdk.transforms.DoFn;
-import org.apache.beam.sdk.transforms.ParDo;
+import org.apache.beam.sdk.transforms.*;
+import org.apache.beam.sdk.values.KV;
+import org.apache.beam.sdk.values.TypeDescriptors;
+import java.util.Collections;
 
 public class ExtractDetails{
 
     private static final String CSV_HEADER="Order_ID,Product,Quantity_Ordered,Price_Each,Order_Date,Purchase_Address";
 
     public static void main(String[] args){
-        PipelineOptions options = PipelineOptionsFactory.fromArgs(args).create();
+
+        SalesDetailsOptions options = PipelineOptionsFactory.fromArgs(args)
+                                                            .withValidation()
+                                                            .as(SalesDetailsOptions.class);
 
         runProductDetails(options);
     }
 
-    static void runProductDetails(PipelineOptions options){
+    public interface SalesDetailsOptions extends PipelineOptions{
+        @Description("Path of the file to read from")
+        @Default.String("gs://dataflow-beam-bucket/input_data/Sales_April_2019.csv")
+        String getInputFile();
+
+        void setInputFile(String value);
+
+        @Description("Path of the fiel to write to")
+        @Default.String("gs://dataflow-beam-bucket/output_data/output_sales_data")
+        String getOutputFile();
+
+        void setOutputFile(String value);
+    }
+
+    static void runProductDetails(SalesDetailsOptions options){
 
      Pipeline p = Pipeline.create(options);
 
-     p.apply("ReadLines", TextIO.read().from("gs://dataflow-beam-bucket/input_data/Sales_April_2019.csv"))
+     p.apply("ReadLines", TextIO.read().from(options.getInputFile()))
         .apply(ParDo.of(new FilterHeaderFn(CSV_HEADER)))
-        .apply("ExtractSalesDetails", ParDo.of(new ExtractSalesDetailsFn()))
-        .apply("WriteSalesDetails", TextIO.write().to("gs://dataflow-beam-bucket/output_data/get_sales_details").withHeader("Product,Total_Price,Order_Date"));
+        .apply("ExtractProductCount", FlatMapElements
+                .into(TypeDescriptors.strings())
+                .via((String row)-> Collections.singletonList(row.split(",")[1])))
+                .apply("CountAggregation", Count.perElement())
+        .apply("FormatResults", MapElements
+                .into(TypeDescriptors.strings())
+                .via((KV<String, Long> typeCount)->
+                        typeCount.getKey() + "," + typeCount.getValue()))
+        .apply("WriteSalesDetails", TextIO.write().to(options.getOutputFile())
+                                        .withHeader("Product,Count")
+                                        .withoutSharding()
+                                        .withSuffix(".csv"));
 
     p.run().waitUntilFinish();
    
