@@ -14,8 +14,8 @@ import java.util.Collections;
 
 public class WalmartSales{
 
-    private static final String CSV_HEADER= "Store, Date, Weekly_Sales, Holiday_Flag,"
-                                            + "Temperature, Fuel_Price, CPI, Unemployment";
+    private static final String CSV_HEADER= "Store,Date,Weekly_Sales,Holiday_Flag,"
+                                            + "Temperature,Fuel_Price,CPI,Unemployment";
 
     public static void main(String[] args){
         StoreSalesAvgOptions options = PipelineOptionsFactory.fromArgs(args).withValidation().as(StoreSalesAvgOptions.class);
