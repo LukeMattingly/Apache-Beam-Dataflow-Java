@@ -12,7 +12,7 @@ import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.TypeDescriptors;
 import java.util.Collections;
 
-public class ExtractDetails{
+public class ExtractDetails_v3{
 
     private static final String CSV_HEADER="Order_ID,Product,Quantity_Ordered,Price_Each,Order_Date,Purchase_Address";
 
